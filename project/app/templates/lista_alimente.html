@@ -1,16 +1,16 @@
 {% load my_filters %}
 <div class="container">
     <div class="row">
-      {% for reteta in retete %}
+      {% for aliment in alimente %}
         <div class="col-md-4">
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">
-                 <a href="{% url 'pagina-reteta' reteta.id %}" target="_blank">{{ reteta }} by {{ reteta.calorii }}</a>
+                 <a href="{% url 'pagina-aliment' aliment.id %}" target="_blank">{{ aliment }} by {{ aliment.calorii }}</a>
                
               </h5>
               <br>
-              <p class="card-text">{{ reteta.calorii }}</p>             
+              <p class="card-text">{{ aliment.calorii }}</p>             
             </div>
           </div>
         </div>

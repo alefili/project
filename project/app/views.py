@@ -19,14 +19,8 @@ def welcome(request):
 
 def lista_alimente(request):
     alimente = Aliment.objects.all()
-    alimente_format = [
-        f"<li>{aliment.titlu} - {aliment.calorii} - {aliment.stoc}</li>"
-        for aliment in alimente
-    ]
-    response_string = "<ol>"
-    response_string += "".join(alimente_format)
-    response_string = "</ol>"
-    return HttpResponse(f"<ol>{alimente_format}</ol>")
+    alimente = alimente.order_by("titlu") 
+    return render(request, "alimente.html", {"alimente": alimente})
 
 def aliment(request, id):
     try:
@@ -37,21 +31,15 @@ def aliment(request, id):
 
 def lista_retete(request):
     retete = Reteta.objects.all()
-    retete_format = [
-        f"<li>{reteta.nume} - {reteta.aliment}</li>"
-        for reteta in retete
-    ]
-    response_string = "<ol>"
-    response_string += "".join(retete_format)
-    response_string = "</ol>"
-    return HttpResponse(f"<ol>{retete_format}</ol>")
+    retete = retete.order_by("nume") 
+    return render(request, "retete.html", {"retete": retete})
 
 def reteta(request, id):
     try:
         reteta = Reteta.objects.get(id=id)
     except Reteta.DoesNotExist:
         return HttpResponse("404")
-    return render(request, "retete.html", {"reteta": reteta})
+    return render(request, "reteta.html", {"reteta": reteta})
 
 def meal_plan(request):
     planuri = Plan.objects.all()
