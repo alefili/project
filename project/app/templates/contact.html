@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Contact</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Trimite!" />
+</form>
+
+{% comment %}
+<h1>request.POST</h1>
+{{ request.POST }}
+
+<h1>request.GET</h1>
+{{ request.GET}}
+{% endcomment %}
+<h1>Mesaj</h1>
+{{ mesaj }}
+{% endblock body%}

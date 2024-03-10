@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load my_filters %}
+{% block title %}
+Aliment {{aliment.titlu}} - {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+        {{ aliment }} <br>
+        Data crearii: {{ aliment.created|naturaltime }} <br />
+        Calorii: {{ aliment.calorii }}
+        <h2>Stoc</h2>
+        {{ aliment.stoc }}
+        Unitate: {{ aliment.unitate }}
+        <a href="{% url 'edit-aliment' aliment.id %}">Editeaza</a>
+
+
+{% endblock body %}
