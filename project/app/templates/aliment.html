@@ -7,10 +7,8 @@ Aliment {{aliment.titlu}} - {{ block.super }}
 
 {% block body %}
         {{ aliment }} <br>
-        Data crearii: {{ aliment.created|naturaltime }} <br />
-        Calorii: {{ aliment.calorii_untate }}
-        <h2>Stoc</h2>
-        {{ aliment.stoc }}
+        Calorii: {{ <aliment class="calorii"></aliment> }}<br />
+        <br>Stoc: {{ aliment.stoc }}<br />
         Unitate: {{ aliment.unitate }}
 
 
