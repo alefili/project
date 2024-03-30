@@ -40,6 +40,7 @@ def reteta(request, id):
     except Reteta.DoesNotExist:
         return HttpResponse("404")
     return render(request, "reteta.html", {"reteta": reteta})
+    
 
 def meal_plan(request):
     planuri = Plan.objects.all()
@@ -116,6 +117,11 @@ def adauga_reteta(request):
             formular.save()
             return redirect(reverse("pagina-reteta"))
     return render(request, "adauga_reteta.html", {"form": formular})
+
+def add_aliment_to_recipe(request):
+    formular = RetetaAlimentForm()
+    total_calorii = Reteta.objects.calculator_total_calorii()
+    return render(request, 'adauga_reteta.html', {'form': formular, 'total_calorii': total_calorii})
 
 
 from django.views.generic import UpdateView

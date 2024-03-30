@@ -3,8 +3,22 @@
 <h1>Adauga Reteta</h1>
 <form method="POST">
     {% csrf_token %}
+    {{ form.as_p }}
+    <label for="total_calorii">Total Calorii:</label>
+    <input type="text" id="total_calorii" name="total_calorii" value="{{ total_calorii }}" readonly>
+    <button type="submit">Add Aliment</button>
     {{ form }}
     <input type="submit" />
 </form>
 
 {% endblock body %}
+
+<script>
+    document.getElementById('id_cantitate_aliment').addEventListener('input', function() {
+        // Calculate the total calories based on the selected aliment and its quantity
+        var cantitate_aliment = parseFloat(document.getElementById('id_cantitate_aliment').value);
+        var calorii_unitate = parseFloat(document.getElementById('id_aliment').value);  // Assuming 'id_aliment' is the ID of the select input for aliments
+        var total_calorii = cantitate_aliment * calorii_unitate;
+        document.getElementById('total_calorii').value = total_calorii;
+    });
+    </script>

@@ -37,6 +37,7 @@ class RetetaAliment(models.Model):
     reteta = models.ForeignKey(Reteta, on_delete=models.CASCADE)
     aliment = models.ForeignKey(Aliment, on_delete=models.CASCADE)
     cantitate_aliment = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    calorii_unitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
     
 class Plan(models.Model):
     calorii = models.CharField(max_length=50)
