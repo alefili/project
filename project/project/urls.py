@@ -30,7 +30,7 @@ urlpatterns = [
     path("reteta/lista", views.lista_retete, name="pagina-retete"),
     path("reteta/detaliu/<int:id>/", views.reteta, name="pagina-reteta"),
     path("reteta/adauga/", views.adauga_reteta),
-    path("aliment/lista", views.aliment, name="pagina-alimente"),
+    path("aliment/lista", views.lista_alimente, name="pagina-alimente"),
     path("aliment/detaliu/<int:id>/", views.aliment, name="pagina-aliment"),
     path("aliment/adauga/", views.adauga_aliment),
     path("__debug__/", include("debug_toolbar.urls")),
