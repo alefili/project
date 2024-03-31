@@ -7,9 +7,10 @@ Aliment {{aliment.titlu}} - {{ block.super }}
 
 {% block body %}
         {{ aliment }} <br>
-        Calorii: {{ <aliment class="calorii"></aliment> }}<br />
-        <br>Stoc: {{ aliment.stoc }}<br />
-        Unitate: {{ aliment.unitate }}
+        Calorii/unitate: {{ aliment.calorii_unitate }}<br />
+        <br>Unitate: {{ aliment.unitate }}<br />
+        Stoc: {{ aliment.stoc }}
+        
 
 
 {% endblock body %}
