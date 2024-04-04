@@ -6,11 +6,13 @@ Reteta {{reteta.nume}} - {{ block.super }}
 {% endblock title %}
 
 {% block body %}
-        Reteta {{reteta.nume}}
-        <br>Calorii: {{ reteta.calorii }}<br />
-        <br>Indicatii: {{ reteta.indicatii }}<br />
-        <br>Alimente: {{ retetaaliment.aliment }}<br />
-        Alimente: {{ retetaaliment.cantitate_aliment }}
+<h2> Reteta {{reteta.nume}} </h2>
+        <br>Calorii: {{ reteta.calculator_total_calorii }}<br />
+        Indicatii: {{ reteta.indicatii }}
+        {% for reteta_aliment in reteta.aliments_with_quantities %}
+                <li>{{ reteta_aliment.aliment.titlu }} - {{ reteta_aliment.cantitate_aliment }} {{ reteta_aliment.aliment.unitate }}</li>
+        {% endfor %}
+        
 
 
 {% endblock body %}

@@ -14,7 +14,7 @@ class Aliment(models.Model):
     titlu = models.CharField(max_length=50, unique=True)
     stoc = models.IntegerField(default=0, db_index=True)
     unitate = models.CharField(max_length=10, choices=UNIT_CHOICES, default = 'buc', db_index=True)
-    calorii_unitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    caloriiunitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -24,20 +24,28 @@ class Aliment(models.Model):
 class Reteta(models.Model):
     aliment = models.ManyToManyField(Aliment, through='RetetaAliment')
     nume = models.CharField(max_length=50)
-    calorii = models.CharField(max_length=50, null=True, blank=True)
     indicatii = models.CharField(max_length=1024, null=True, blank=True, help_text="Introduceti indicatii")
 
     def __str__(self):
         return f"Retete {self.nume}"
     
+    @property
+    def calorii(self):
+        calorii = 0
+        alimente = self.retetaaliment_set.all()
+        for aliment in alimente:
+            calorii +=aliment.cantitate_aliment * RetetaAliment.aliment.caloriiunitate
+    
     def calculator_total_calorii(self):
-        return self.aliment.aggregate(total_calorii=Sum(models.F('retetaaliment__cantitate') * models.F('retetaaliment__aliment__calorii_unitate')))['total_calorii'] or 0
+        return self.aliment.aggregate(total_calorii=Sum(models.F('retetaaliment__cantitate_aliment') * models.F('retetaaliment__aliment__caloriiunitate')))['total_calorii'] or 0
+    
+    def aliments_with_quantities(self):
+        return self.retetaaliment_set.all()
     
 class RetetaAliment(models.Model):
     reteta = models.ForeignKey(Reteta, on_delete=models.CASCADE)
     aliment = models.ForeignKey(Aliment, on_delete=models.CASCADE)
     cantitate_aliment = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
-    calorii_unitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
     
 class Plan(models.Model):
     calorii = models.CharField(max_length=50)
