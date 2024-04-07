@@ -6,10 +6,9 @@ Aliment {{aliment.titlu}} - {{ block.super }}
 {% endblock title %}
 
 {% block body %}
-        {{ aliment }} <br>
+        <h2>{{ aliment }} </h2> <br>
         Calorii/unitate: {{ aliment.caloriiunitate }}<br />
-        <br>Unitate: {{ aliment.unitate }}<br />
-        Stoc: {{ aliment.stoc }}
+        Stoc: {{ aliment.stoc }} {{ aliment.unitate }}
         
 
 

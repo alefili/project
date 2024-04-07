@@ -24,8 +24,9 @@ from .settings import MEDIA_ROOT, MEDIA_URL
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", views.welcome, name="home"),
-    path('meal-plan', views.meal_plan),
-    path('lista-cumparaturi', views.lista_cumparaturi),
+    path("plan/lista", views.lista_planuri, name="pagina-planuri"),
+    path("plan/detaliu/<int:id>/", views.plan, name="pagina-plan"),
+    path("plan/adauga/", views.adauga_plan),
     path("contact", views.contact, name='contact'),
     path("reteta/lista", views.lista_retete, name="pagina-retete"),
     path("reteta/detaliu/<int:id>/", views.reteta, name="pagina-reteta"),

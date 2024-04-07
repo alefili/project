@@ -8,7 +8,7 @@ from django.urls import reverse, reverse_lazy
 
 from .forms import *
 from .decorators import is_staff
-from .models import Aliment, Reteta, Plan, Cumparaturi
+from .models import Aliment, Reteta, Plan
 
 from django.db.models import F
 
@@ -37,32 +37,23 @@ def lista_retete(request):
 def reteta(request, id):
     try:
         reteta = Reteta.objects.get(id=id)
+        alimente = RetetaAliment.aliment_set.all()
+        alimente_str = [aliment.titlu for aliment in alimente]
     except Reteta.DoesNotExist:
         return HttpResponse("404")
     return render(request, "reteta.html", {"reteta": reteta})
     
-
-def meal_plan(request):
+def lista_planuri(request):
     planuri = Plan.objects.all()
-    planuri_format = [
-        f"<li>{plan.reteta} - {plan.calorii} - {plan.ziua}</li>"
-        for plan in planuri
-    ]
-    response_string = "<ol>"
-    response_string += "".join(planuri_format)
-    response_string = "</ol>"
-    return HttpResponse(f"<ol>{planuri_format}</ol>")
+    planuri = planuri.order_by("ziua") 
+    return render(request, "planuri.html", {"planuri": planuri})
 
-def lista_cumparaturi(request):
-    cumparaturi = Cumparaturi.objects.all()
-    cumparaturi_format = [
-        f"<li>{necesar.aliment} - {necesar.cantitate}</li>"
-        for necesar in cumparaturi
-    ]
-    response_string = "<ol>"
-    response_string += "".join(cumparaturi_format)
-    response_string = "</ol>"
-    return HttpResponse(f"<ol>{cumparaturi_format}</ol>")
+def plan(request, id):
+    try:
+        plan = Plan.objects.get(id=id)
+    except Plan.DoesNotExist:
+        return HttpResponse("404")
+    return render(request, "plan.html", {"plan": plan})
 
 def contact(request):
     form = ContactForm()
@@ -123,6 +114,16 @@ def add_aliment_to_recipe(request):
     total_calorii = Reteta.objects.calculator_total_calorii()
     return render(request, 'adauga_reteta.html', {'form': formular, 'total_calorii': total_calorii})
 
+@is_staff
+@login_required
+def adauga_plan(request):
+    formular = PlanForm()
+    if request.method == "POST":
+        formular = PlanForm(request.POST)
+        if formular.is_valid():
+            formular.save()
+            return redirect(reverse("pagina-planuri"))
+    return render(request, "adauga_plan.html", {"form": formular})
 
 from django.views.generic import UpdateView
 
@@ -137,3 +138,9 @@ class RetetaUpdateView(UpdateView):
     form_class = RetetaForm
     template_name = "adauga_reteta.html"
     success_url = reverse_lazy("pagina-retete")    
+    
+class PlanUpdateView(UpdateView):
+    model = plan
+    form_class = PlanForm
+    template_name = "adauga_plan.html"
+    success_url = reverse_lazy("pagina-planuri")  

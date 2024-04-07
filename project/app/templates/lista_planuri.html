@@ -1,0 +1,22 @@
+{% load my_filters %}
+<div class="container">
+    <div class="row">
+      {% for plan in planuri %}
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">
+                 <a href="{% url 'pagina-plan' plan.id %}" target="_blank">{{ plan }}</a>
+               
+              </h5>
+              <br>         
+            </div>
+          </div>
+        </div>
+        {% if forloop.counter|divisibleby:3 %}
+        </div>
+        <div class="row">
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>

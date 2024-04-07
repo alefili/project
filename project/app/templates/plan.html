@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load my_filters %}
+{% block title %}
+Jurnal {{plan.ziua}} - {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+<h2> Jurnal {{plan.ziua}} </h2>
+        <br>Calorii: {{ plan.calculate_total_calories }}<br />
+        {% for aliment in plan.aliment %}
+                <li>{{ aliment }} - {{ cantitate_aliment }} </li>
+        {% endfor %}
+        
+
+
+{% endblock body %}

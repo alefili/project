@@ -32,6 +32,10 @@
                       <a class="nav-link" href="{% url 'pagina-alimente' %}">Alimente</a>
                     </li>
 
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'pagina-planuri' %}">Planuri</a>
+                    </li>
+
                     <li class="nav-item float-end">
                       {% if request.user.is_authenticated %}
                         <a class="nav-link" aria-current="page" href="{% url 'logout' %}">Salut {{ request.user.username }} &nbsp;&nbsp;&nbsp; Logout</a>

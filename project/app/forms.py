@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.forms import ValidationError
 from tinymce.widgets import TinyMCE
 
-from .models import Aliment, Reteta, RetetaAliment
+from .models import Aliment, Reteta, RetetaAliment, Plan, PlanAliment, PlanReteta
 
 class ContactForm(forms.Form):
     email = forms.EmailField(required=True)
@@ -55,3 +55,32 @@ class RetetaAlimentForm(forms.ModelForm):
             'aliment': forms.Select(attrs={'class': 'form-control'}),
             'cantitate_aliment': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_aliment'}),
         }
+        
+class PlanForm(forms.ModelForm):
+    class Meta:
+        model = Plan
+        fields = "__all__"
+        widgets = {
+            'alimente': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
+        widgets = {
+            'retete': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
+        
+class PlanAlimentForm(forms.ModelForm):
+    class Meta:
+        model = PlanAliment
+        fields = ['aliment', 'cantitate_aliment']
+        widgets = {
+            'aliment': forms.Select(attrs={'class': 'form-control'}),
+            'cantitate_aliment': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_aliment'}),
+        }
+ 
+class PlanRetetaForm(forms.ModelForm):
+    class Meta:
+        model = PlanReteta
+        fields = ['reteta', 'cantitate_reteta']
+        widgets = {
+            'reteta': forms.Select(attrs={'class': 'form-control'}),
+            'cantitate_reteta': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_reteta'}),
+        }       
