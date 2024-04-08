@@ -37,8 +37,8 @@ def lista_retete(request):
 def reteta(request, id):
     try:
         reteta = Reteta.objects.get(id=id)
-        alimente = RetetaAliment.aliment_set.all()
-        alimente_str = [aliment.titlu for aliment in alimente]
+        alimente = reteta.retetaaliment_set.all()
+        alimente_str = [aliment.aliment for aliment in alimente]
     except Reteta.DoesNotExist:
         return HttpResponse("404")
     return render(request, "reteta.html", {"reteta": reteta})

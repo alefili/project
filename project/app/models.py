@@ -14,7 +14,7 @@ class Aliment(models.Model):
     titlu = models.CharField(max_length=50, unique=True)
     stoc = models.IntegerField(default=0, db_index=True)
     unitate = models.CharField(max_length=10, choices=UNIT_CHOICES, default = 'buc', db_index=True)
-    caloriiunitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    calorii_unitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -37,7 +37,7 @@ class Reteta(models.Model):
             calorii +=aliment.cantitate_aliment * RetetaAliment.aliment.caloriiunitate
     
     def calculator_total_calorii(self):
-        return self.aliment.aggregate(total_calorii=Sum(models.F('retetaaliment__cantitate_aliment') * models.F('retetaaliment__aliment__caloriiunitate')))['total_calorii'] or 0
+        return self.aliment.aggregate(total_calorii=Sum(models.F('retetaaliment__cantitate_aliment') * models.F('retetaaliment__aliment__calorii_unitate')))['total_calorii'] or 0
     
     def aliments_with_quantities(self):
         return self.retetaaliment_set.all()
@@ -62,7 +62,8 @@ class UserProfile(models.Model):
         if UserProfile.genul == 'f':
             return '2000 calorii'
         else:
-            return '2500 calorii'   
+            return '2500 calorii' 
+          
 class Plan(models.Model):
     ziua = models.DateField(unique=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
