@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum, F
+from django.utils import timezone
 
 # Create your models here.
 class Aliment(models.Model):
@@ -18,71 +19,42 @@ class Aliment(models.Model):
     def __str__(self):
         return f"Aliment {self.titlu} "
     
-class Reteta(models.Model):
-    aliment = models.ManyToManyField(Aliment, through='RetetaAliment')
-    nume = models.CharField(max_length=50)
-    indicatii = models.CharField(max_length=1024, null=True, blank=True, help_text="Introduceti indicatii")
-
-    def __str__(self):
-        return f"Retete {self.nume}"
-    
-    @property
-    def calorii(self):
-        calorii = 0
-        alimente = self.retetaaliment_set.all()
-        for aliment in alimente:
-            calorii +=aliment.cantitate_aliment * RetetaAliment.aliment.caloriiunitate
-    
-    def calculator_total_calorii(self):
-        return self.aliment.aggregate(total_calorii=Sum(models.F('retetaaliment__cantitate_aliment') * models.F('retetaaliment__aliment__calorii_unitate')))['total_calorii'] or 0
-    
-    def aliments_with_quantities(self):
-        return self.retetaaliment_set.all()
-    
-class RetetaAliment(models.Model):
-    reteta = models.ForeignKey(Reteta, on_delete=models.CASCADE)
-    aliment = models.ForeignKey(Aliment, on_delete=models.CASCADE)
-    cantitate_aliment = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
-
 class UserProfile(models.Model):
     GENDER_CHOICES = (
         ('f', 'feminin'),
         ('m', 'masculin'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    greutate = models.IntegerField(default=0, db_index=True)
-    inaltime = models.IntegerField(default=0, db_index=True)
-    varsta = models.IntegerField(default=0, db_index=True)
     genul = models.CharField(max_length=10, choices=GENDER_CHOICES, default = 'm', db_index=True)
     
+    
     def ideal_calorii(self):
-        if UserProfile.genul == 'f':
-            return '2000 calorii'
+        if UserProfile.genul == 'feminin':
+            return '2000'
         else:
-            return '2500 calorii' 
+            return '2500' 
           
 class Plan(models.Model):
-    ziua = models.DateField(unique=True)
+    ziua = models.DateField(unique=True, default=timezone.now)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    reteta = models.ManyToManyField(Reteta, through='PlanReteta', blank=True)
-    aliment = models.ManyToManyField(Aliment, through='PlanAliment', blank=True)
-
+    aliment = models.ManyToManyField(Aliment, blank=True)
+    cantitate_aliment = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)  
+    calculate_total_calories = models.IntegerField(default=0) 
+    calorii_ramase = models.IntegerField(default=0)
+    target_calorii = models.IntegerField(default=UserProfile.ideal_calorii(user))
+    
     def __str__(self):
         return f"Plan {self.ziua}"
     
+    def save(self, *args, **kwargs):
+        self.calculate_total_calories = self.calculate_total_calories()
+        self.calorii_ramase = self.calorii_ramase()
+        super().save(*args, **kwargs)
+    
     def calculate_total_calories(self):
-        total_calorii_retete = self.reteta.aggregate(total_calorii=Sum(models.F('plan__cantitate_reteta') * models.F('plan__reteta__calorii')))['total_calorii'] or 0
-        total_calorii_alimente = self.aliment.aggregate(total_calories=Sum(models.F('plan__cantitate_aliment') * models.F('plan__aliment__calorii')))['total_calories'] or 0
-        return total_calorii_retete + total_calorii_alimente
+        total_calorii_alimente = self.aliment.aggregate(total_calories=Sum(models.F('plan__cantitate_aliment') * models.F('plan__aliment__calorii_unitate')))['total_calories'] or 0
+        return total_calorii_alimente
+    
+    def calorii_ramase(self):
+        return self.target_calorii - self.calculate_total_calories
         
-class PlanReteta(models.Model):
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
-    reteta = models.ForeignKey(Reteta, on_delete=models.CASCADE)
-    cantitate_reteta = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
-
-class PlanAliment(models.Model):
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
-    aliment = models.ForeignKey(Aliment, on_delete=models.CASCADE)
-    cantitate_aliment = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)   
-        
-

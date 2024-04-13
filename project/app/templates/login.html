@@ -4,9 +4,20 @@
 <form method="POST">
     {% csrf_token %}
  
-        {{form.as_p}}
-        {{ eroare }} <br>
-    <input type="submit" value="Trimite!" />
+    <h2>Login</h2>
+    {{ login_form.as_p }}
+    {{ eroare }} <br>
+    <input type="submit" name="login_submit" value="Login" />
+</form>
+
+<hr>
+
+<h2>Register</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ registration_form.as_p }}
+    {{ profile_form.as_p }}
+    <input type="submit" name="registration_submit" value="Register" />
 </form>
 
 {% endblock body %}

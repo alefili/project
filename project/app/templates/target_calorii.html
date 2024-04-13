@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Target calorii consumate zilnic{% endblock title %}
+{% block body %}
+<h2>Target calorii consumate zilnic</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Seteaza Target</button>
+</form>
+{% endblock body %}

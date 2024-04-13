@@ -1,8 +1,46 @@
-{% extends "base.html" %}
-{% block body %}
-Bine ati venit!
-<h1>Cele mai recente retete</h1>
-{% include "lista_retete.html" %}
-{% include "lista_alimente.html" %}
-{% include "lista_planuri.html" %}
-{% endblock body%}
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Input field for target calories -->
+    <label for="id_target_calories">Target Calories:</label>
+    <input type="number" id="id_target_calories" name="target_calories" min="0" step="1" required>
+
+    <div id="aliments-form">
+        <!-- Input fields for aliments and their quantities -->
+        <div class="aliment-entry">
+            <label for="id_aliment_1">Aliment:</label>
+            <select id="id_aliment_1" name="aliment_1">
+                {% for aliment in aliments %}
+                    <option value="{{ aliment.id }}">{{ aliment.titlu }}</option>
+                {% endfor %}
+            </select>
+            <label for="id_quantity_1">Quantity:</label>
+            <input type="number" id="id_quantity_1" name="quantity_1" min="1" step="1" required>
+        </div>
+    </div>
+
+    <!-- Button to add more aliment entries -->
+    <button type="button" id="add-aliment">Add Aliment</button>
+
+    <!-- Submit button -->
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    // JavaScript to add more aliment input fields dynamically
+    document.getElementById('add-aliment').addEventListener('click', function() {
+        var alimentsForm = document.getElementById('aliments-form');
+        var numEntries = alimentsForm.getElementsByClassName('aliment-entry').length + 1;
+        var newEntry = document.createElement('div');
+        newEntry.classList.add('aliment-entry');
+        newEntry.innerHTML = '<label for="id_aliment_' + numEntries + '">Aliment:</label>' +
+                             '<select id="id_aliment_' + numEntries + '" name="aliment_' + numEntries + '">' +
+                             '{% for aliment in aliments %}' +
+                             '<option value="{{ aliment.id }}">{{ aliment.titlu }}</option>' +
+                             '{% endfor %}' +
+                             '</select>' +
+                             '<label for="id_quantity_' + numEntries + '">Quantity:</label>' +
+                             '<input type="number" id="id_quantity_' + numEntries + '" name="quantity_' + numEntries + '" min="1" step="1" required>';
+        alimentsForm.appendChild(newEntry);
+    });
+</script>

@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import ValidationError
+from django.contrib.auth.models import User
 from tinymce.widgets import TinyMCE
 
-from .models import Aliment, Reteta, RetetaAliment, Plan, PlanAliment, PlanReteta
+from .models import Aliment, Plan, UserProfile
 
 class ContactForm(forms.Form):
     email = forms.EmailField(required=True)
@@ -14,73 +15,53 @@ class ContactForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data["email"]
         if not email.endswith("@gmail.com"):
-            raise ValidationError("Email invalid!")
+            raise forms.ValidationError("Email invalid!")
         return email
-    
-    
+
 class CustomLoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
-    
-    
+
     def clean(self):
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
         user = authenticate(None, username=username, password=password)
         if user is  None:
-            raise ValidationError('Nu exista User-ul')
+            raise forms.ValidationError('Nu exista User-ul')
         else:
             self.authenticate_user = user
         return self.cleaned_data
+
+class RegistrationForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['genul']
     
 class AlimentForm(forms.ModelForm):
     class Meta:
         model = Aliment
         fields = "__all__"
         
-class RetetaForm(forms.ModelForm):
-    class Meta:
-        model = Reteta
-        fields = "__all__"
-        widgets = {'indicatii': TinyMCE(attrs={'cols': 80, 'rows': 30})}
-        widgets = {
-            'alimente': forms.SelectMultiple(attrs={'class': 'form-control'}),
-        }
-
-class RetetaAlimentForm(forms.ModelForm):
-    class Meta:
-        model = RetetaAliment
-        fields = ['aliment', 'cantitate_aliment']
-        widgets = {
-            'aliment': forms.Select(attrs={'class': 'form-control'}),
-            'cantitate_aliment': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_aliment'}),
-        }
         
 class PlanForm(forms.ModelForm):
     class Meta:
         model = Plan
-        fields = "__all__"
+        fields = ['aliment', 'cantitate_aliment', 'target_calorii']
         widgets = {
-            'alimente': forms.SelectMultiple(attrs={'class': 'form-control'}),
-        }
-        widgets = {
-            'retete': forms.SelectMultiple(attrs={'class': 'form-control'}),
-        }
-        
-class PlanAlimentForm(forms.ModelForm):
-    class Meta:
-        model = PlanAliment
-        fields = ['aliment', 'cantitate_aliment']
-        widgets = {
-            'aliment': forms.Select(attrs={'class': 'form-control'}),
+            'aliment': forms.SelectMultiple(attrs={'class': 'form-control'}),
             'cantitate_aliment': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_aliment'}),
+            'target_calorii': forms.NumberInput(attrs={'class': 'form-control'}),
         }
- 
-class PlanRetetaForm(forms.ModelForm):
-    class Meta:
-        model = PlanReteta
-        fields = ['reteta', 'cantitate_reteta']
-        widgets = {
-            'reteta': forms.Select(attrs={'class': 'form-control'}),
-            'cantitate_reteta': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_cantitate_reteta'}),
-        }       
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+            daily_consumption = Plan.objects.create(user=instance.plan.user.user, food_item=instance.aliment, quantity=instance.cantitate_aliment) + Plan.objects.create(user=instance.plan.user.user, food_item=instance.aliment, quantity=instance.cantitate_aliment)
+            daily_consumption.save()
+        return instance
+        
+    

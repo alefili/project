@@ -3,57 +3,31 @@ from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
+from django.db.models import Sum
+import json
 
 from .forms import *
 from .decorators import is_staff
-from .models import Aliment, Reteta, Plan
+from .models import Aliment, Plan
 
 from django.db.models import F
 
 # Create your views here.
 def welcome(request):
-    retete = Reteta.objects.all()[:3]
-    return render(request, "index.html", {"retete": retete})
+    if request.method == 'POST':
+        # Handle form submission if needed
+        pass
 
-def lista_alimente(request):
-    alimente = Aliment.objects.all()
-    alimente = alimente.order_by("titlu") 
-    return render(request, "alimente.html", {"alimente": alimente})
+    aliments = Aliment.objects.all()
 
-def aliment(request, id):
-    try:
-        aliment = Aliment.objects.get(id=id)
-    except Aliment.DoesNotExist:
-        return HttpResponse("404")
-    return render(request, "aliment.html", {"aliment": aliment})
+    context = {
+        'aliments': aliments,
+    }
 
-def lista_retete(request):
-    retete = Reteta.objects.all()
-    retete = retete.order_by("nume") 
-    return render(request, "retete.html", {"retete": retete})
-
-def reteta(request, id):
-    try:
-        reteta = Reteta.objects.get(id=id)
-        alimente = reteta.retetaaliment_set.all()
-        alimente_str = [aliment.aliment for aliment in alimente]
-    except Reteta.DoesNotExist:
-        return HttpResponse("404")
-    return render(request, "reteta.html", {"reteta": reteta})
-    
-def lista_planuri(request):
-    planuri = Plan.objects.all()
-    planuri = planuri.order_by("ziua") 
-    return render(request, "planuri.html", {"planuri": planuri})
-
-def plan(request, id):
-    try:
-        plan = Plan.objects.get(id=id)
-    except Plan.DoesNotExist:
-        return HttpResponse("404")
-    return render(request, "plan.html", {"plan": plan})
+    return render(request, 'index.html', context)
 
 def contact(request):
     form = ContactForm()
@@ -71,17 +45,45 @@ def contact(request):
             #return redirect("/")
     return render(request, "contact.html", {"form": form, "mesaj": mesaj})
 
+def lista_alimente(request):
+    alimente = Aliment.objects.all()
+    alimente = alimente.order_by("titlu") 
+    return render(request, "alimente.html", {"alimente": alimente})
+
+def aliment(request, id):
+    try:
+        aliment = Aliment.objects.get(id=id)
+    except Aliment.DoesNotExist:
+        return HttpResponse("404")
+    return render(request, "aliment.html", {"aliment": aliment})
+    
+
 def custom_login(request):
-    form = CustomLoginForm()
+    login_form = CustomLoginForm()
+    registration_form = RegistrationForm()
+    profile_form = UserProfileForm()  # Add this line to create an instance of UserProfileForm
     if request.method == 'POST':
-        form = CustomLoginForm(request.POST)
-        if form.is_valid():
-            login(request, form.authenticate_user)
-            return redirect("/")
-
-    return render(request, 'login.html', {'form': form})
-
-
+        if 'login_submit' in request.POST:
+            login_form = CustomLoginForm(request.POST)
+            if login_form.is_valid():
+                login(request, login_form.authenticate_user)
+                return redirect("/")
+        elif 'registration_submit' in request.POST:
+            registration_form = RegistrationForm(request.POST)
+            profile_form = UserProfileForm(request.POST)  # Add this line to bind form data to UserProfileForm
+            if registration_form.is_valid() and profile_form.is_valid():
+                # Create a new user
+                username = registration_form.cleaned_data['username']
+                password = registration_form.cleaned_data['password']
+                user = User.objects.create_user(username=username, password=password)
+                # Create a new user profile and associate it with the user
+                profile = profile_form.save(commit=False)
+                profile.user = user
+                profile.save()
+                # Login the new user
+                login(request, user)
+                return redirect("/")
+    return render(request, 'login.html', {'login_form': login_form, 'registration_form': registration_form, 'profile_form': profile_form})
 
 def logout_view(request):
     logout(request)
@@ -100,19 +102,12 @@ def adauga_aliment(request):
 
 @is_staff
 @login_required
-def adauga_reteta(request):
-    formular = RetetaForm()
-    if request.method == "POST":
-        formular = RetetaForm(request.POST)
-        if formular.is_valid():
-            formular.save()
-            return redirect(reverse("pagina-reteta"))
-    return render(request, "adauga_reteta.html", {"form": formular})
-
-def add_aliment_to_recipe(request):
-    formular = RetetaAlimentForm()
-    total_calorii = Reteta.objects.calculator_total_calorii()
-    return render(request, 'adauga_reteta.html', {'form': formular, 'total_calorii': total_calorii})
+def plan(request, id):
+    plan = get_object_or_404(Plan, id=id)
+    consumed_calories = plan.calculate_total_calories()
+    daily_target = plan.user.target_calorii()  # Assuming you have a method to retrieve the daily calorie target
+    remaining_calories = daily_target - consumed_calories
+    return render(request, "plan.html", {"plan": plan, "remaining_calories": remaining_calories})
 
 @is_staff
 @login_required
@@ -131,13 +126,7 @@ class AlimentUpdateView(UpdateView):
     model = aliment
     form_class = AlimentForm
     template_name = "adauga_aliment.html"
-    success_url = reverse_lazy("pagina-alimente")
-    
-class RetetaUpdateView(UpdateView):
-    model = reteta
-    form_class = RetetaForm
-    template_name = "adauga_reteta.html"
-    success_url = reverse_lazy("pagina-retete")    
+    success_url = reverse_lazy("pagina-alimente") 
     
 class PlanUpdateView(UpdateView):
     model = plan
