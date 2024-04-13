@@ -18,16 +18,36 @@ from django.db.models import F
 # Create your views here.
 def welcome(request):
     if request.method == 'POST':
-        # Handle form submission if needed
-        pass
+        target_calorii = request.POST.get('target_calorii')
+        submitted_data = []
+        
+        total_calorii = 0
 
-    aliments = Aliment.objects.all()
+        # Iterate through submitted aliment quantities
+        for key, value in request.POST.items():
+            if key.startswith('aliment_') and value:
+                aliment_id = key.split('_')[1]
+                aliment = Aliment.objects.get(id=aliment_id)
+                cantitate_aliment = value
+                
+                calorii = aliment.calorii_unitate * int(cantitate_aliment)
+                total_calorii += calorii
+                
+                submitted_data.append({
+                    'aliment': aliment, 
+                    'cantitate_aliment': cantitate_aliment,
+                    'calorii': calorii
+                })
 
-    context = {
-        'aliments': aliments,
-    }
+        context = {
+            'target_calorii': target_calorii,
+            'submitted_data': submitted_data,
+            'aliments': Aliment.objects.all(),
+            'total_calorii': total_calorii,  # Pass total calories to the template
+}
 
-    return render(request, 'index.html', context)
+        return render(request, 'index.html', context)
+
 
 def contact(request):
     form = ContactForm()

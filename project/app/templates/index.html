@@ -2,8 +2,8 @@
     {% csrf_token %}
 
     <!-- Input field for target calories -->
-    <label for="id_target_calories">Target Calories:</label>
-    <input type="number" id="id_target_calories" name="target_calories" min="0" step="1" required>
+    <label for="id_target_calorii">Target Calorii:</label>
+    <input type="number" id="id_target_calorii" name="target_calorii" min="0" step="1" required>
 
     <div id="aliments-form">
         <!-- Input fields for aliments and their quantities -->
@@ -14,8 +14,8 @@
                     <option value="{{ aliment.id }}">{{ aliment.titlu }}</option>
                 {% endfor %}
             </select>
-            <label for="id_quantity_1">Quantity:</label>
-            <input type="number" id="id_quantity_1" name="quantity_1" min="1" step="1" required>
+            <label for="id_cantitate_aliment_1">Cantitate aliment:</label>
+            <input type="number" id="id_cantitate_aliment_1" name="cantitate_aliment_1" min="1" step="1" required>
         </div>
     </div>
 
@@ -25,6 +25,30 @@
     <!-- Submit button -->
     <button type="submit">Submit</button>
 </form>
+
+<!-- Table to display submitted data -->
+<table>
+    <thead>
+        <tr>
+            <th>Aliment</th>
+            <th>Cantitate aliment</th>
+            <th>Calorii</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in submitted_data %}
+            <tr>
+                <td>{{ data.aliment.titlu }}</td>
+                <td>{{ data.cantitate_aliment }}</td>
+                <td>{{ data.calorii }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2"><strong>Total calorii</strong></td>
+            <td>{{ total_calorii }}</td>
+        </tr>
+    </tbody>
+</table>
 
 <script>
     // JavaScript to add more aliment input fields dynamically
@@ -39,8 +63,8 @@
                              '<option value="{{ aliment.id }}">{{ aliment.titlu }}</option>' +
                              '{% endfor %}' +
                              '</select>' +
-                             '<label for="id_quantity_' + numEntries + '">Quantity:</label>' +
-                             '<input type="number" id="id_quantity_' + numEntries + '" name="quantity_' + numEntries + '" min="1" step="1" required>';
+                             '<label for="id_cantitate_aliment_' + numEntries + '">Cantitate_aliment:</label>' +
+                             '<input type="number" id="id_cantitate_aliment_' + numEntries + '" name="cantitate_aliment_' + numEntries + '" min="1" step="1" required>';
         alimentsForm.appendChild(newEntry);
     });
 </script>
