@@ -32,6 +32,7 @@ def welcome(request):
                 
                 calorii = aliment.calorii_unitate * int(cantitate_aliment)
                 total_calorii += calorii
+                calorii_ramase = int(target_calorii) - total_calorii
                 
                 submitted_data.append({
                     'aliment': aliment, 
@@ -43,7 +44,8 @@ def welcome(request):
             'target_calorii': target_calorii,
             'submitted_data': submitted_data,
             'aliments': Aliment.objects.all(),
-            'total_calorii': total_calorii,  # Pass total calories to the template
+            'total_calorii': total_calorii,
+            'calorii_ramase': calorii_ramase,
 }
 
         return render(request, 'index.html', context)

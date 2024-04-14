@@ -1,3 +1,7 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
 <form method="post">
     {% csrf_token %}
 
@@ -50,6 +54,8 @@
     </tbody>
 </table>
 
+<canvas id="myPieChart" style="width: 25%; height: 25%;"></canvas>
+
 <script>
     // JavaScript to add more aliment input fields dynamically
     document.getElementById('add-aliment').addEventListener('click', function() {
@@ -66,5 +72,26 @@
                              '<label for="id_cantitate_aliment_' + numEntries + '">Cantitate_aliment:</label>' +
                              '<input type="number" id="id_cantitate_aliment_' + numEntries + '" name="cantitate_aliment_' + numEntries + '" min="1" step="1" required>';
         alimentsForm.appendChild(newEntry);
+    });
+
+    // Get the context of the canvas element we want to select
+    var ctx = document.getElementById("myPieChart").getContext("2d");
+    
+    // Define the data for the pie chart
+    var total_calorii = "{{ total_calorii }}";
+    var calorii_ramase = "{{ calorii_ramase }}";
+    var data = {
+        labels: ["Consumate", "Ramase"],
+        datasets: [{
+            data: [parseInt(total_calorii), parseInt(calorii_ramase)],
+            backgroundColor: ["#FF6384", "#36A2EB"]
+        }]
+    };
+
+    // Create a new pie chart with the provided data
+    var myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: data,
+        options: {}
     });
 </script>
