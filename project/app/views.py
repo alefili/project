@@ -49,6 +49,11 @@ def welcome(request):
 }
 
         return render(request, 'index.html', context)
+    else:
+        # Handle GET request
+        aliments = Aliment.objects.all()
+        context = {'aliments': aliments}
+        return render(request, 'index.html', context)
 
 
 def contact(request):

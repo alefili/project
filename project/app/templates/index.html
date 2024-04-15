@@ -1,97 +1,108 @@
-<head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+{% extends "base.html" %}
 
-<form method="post">
-    {% csrf_token %}
+{% block body %}
+<h1>Bine ati venit!</h1>
 
-    <!-- Input field for target calories -->
-    <label for="id_target_calorii">Target Calorii:</label>
-    <input type="number" id="id_target_calorii" name="target_calorii" min="0" step="1" required>
+    <div style="display: flex;">
+        <div style="flex: 1;">
 
-    <div id="aliments-form">
-        <!-- Input fields for aliments and their quantities -->
-        <div class="aliment-entry">
-            <label for="id_aliment_1">Aliment:</label>
-            <select id="id_aliment_1" name="aliment_1">
-                {% for aliment in aliments %}
-                    <option value="{{ aliment.id }}">{{ aliment.titlu }}</option>
-                {% endfor %}
-            </select>
-            <label for="id_cantitate_aliment_1">Cantitate aliment:</label>
-            <input type="number" id="id_cantitate_aliment_1" name="cantitate_aliment_1" min="1" step="1" required>
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Input field for target calories -->
+                <label for="id_target_calorii">Target Calorii:</label>
+                <input type="number" id="id_target_calorii" name="target_calorii" min="0" step="1" required>
+
+                <div id="aliments-form">
+                    <!-- Input fields for aliments and their quantities -->
+                    <div class="aliment-entry">
+                        <label for="id_aliment_1">Aliment:</label>
+                        <select id="id_aliment_1" name="aliment_1">
+                            {% for aliment in aliments %}
+                                <option value="{{ aliment.id }}">{{ aliment.titlu }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="id_cantitate_aliment_1">Cantitate aliment:</label>
+                        <input type="number" id="id_cantitate_aliment_1" name="cantitate_aliment_1" min="1" step="1" required>
+                    </div>
+                </div>
+
+                <!-- Button to add more aliment entries -->
+                <button type="button" id="add-aliment">Add Aliment</button>
+
+                <!-- Submit button -->
+                <button type="submit">Submit</button>
+            </form>
+
+            <!-- Table to display submitted data -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aliment</th>
+                        <th>Cantitate aliment</th>
+                        <th>Calorii</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in submitted_data %}
+                        <tr>
+                            <td>{{ data.aliment.titlu }}</td>
+                            <td>{{ data.cantitate_aliment }}</td>
+                            <td>{{ data.calorii }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2"><strong>Total calorii</strong></td>
+                        <td>{{ total_calorii }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="flex: 1;">
+            <canvas width="140" height="140" style="display: block; box-sizing: border-box; height: 112px; width: 112px;"></canvas>
         </div>
     </div>
-
-    <!-- Button to add more aliment entries -->
-    <button type="button" id="add-aliment">Add Aliment</button>
-
-    <!-- Submit button -->
-    <button type="submit">Submit</button>
-</form>
-
-<!-- Table to display submitted data -->
-<table>
-    <thead>
-        <tr>
-            <th>Aliment</th>
-            <th>Cantitate aliment</th>
-            <th>Calorii</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for data in submitted_data %}
-            <tr>
-                <td>{{ data.aliment.titlu }}</td>
-                <td>{{ data.cantitate_aliment }}</td>
-                <td>{{ data.calorii }}</td>
-            </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="2"><strong>Total calorii</strong></td>
-            <td>{{ total_calorii }}</td>
-        </tr>
-    </tbody>
-</table>
-
-<canvas id="myPieChart" style="width: 25%; height: 25%;"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock body %}
 
 <script>
-    // JavaScript to add more aliment input fields dynamically
-    document.getElementById('add-aliment').addEventListener('click', function() {
-        var alimentsForm = document.getElementById('aliments-form');
-        var numEntries = alimentsForm.getElementsByClassName('aliment-entry').length + 1;
-        var newEntry = document.createElement('div');
-        newEntry.classList.add('aliment-entry');
-        newEntry.innerHTML = '<label for="id_aliment_' + numEntries + '">Aliment:</label>' +
-                             '<select id="id_aliment_' + numEntries + '" name="aliment_' + numEntries + '">' +
-                             '{% for aliment in aliments %}' +
-                             '<option value="{{ aliment.id }}">{{ aliment.titlu }}</option>' +
-                             '{% endfor %}' +
-                             '</select>' +
-                             '<label for="id_cantitate_aliment_' + numEntries + '">Cantitate_aliment:</label>' +
-                             '<input type="number" id="id_cantitate_aliment_' + numEntries + '" name="cantitate_aliment_' + numEntries + '" min="1" step="1" required>';
-        alimentsForm.appendChild(newEntry);
-    });
+    window.onload = function() {
+        // JavaScript to add more aliment input fields dynamically
+        document.getElementById('add-aliment').addEventListener('click', function() {
+            var alimentsForm = document.getElementById('aliments-form');
+            var numEntries = alimentsForm.getElementsByClassName('aliment-entry').length + 1;
+            var newEntry = document.createElement('div');
+            newEntry.classList.add('aliment-entry');
+            newEntry.innerHTML = '<label for="id_aliment_' + numEntries + '">Aliment:</label>' +
+                                 '<select id="id_aliment_' + numEntries + '" name="aliment_' + numEntries + '">' +
+                                 '{% for aliment in aliments %}' +
+                                 '<option value="{{ aliment.id }}">{{ aliment.titlu }}</option>' +
+                                 '{% endfor %}' +
+                                 '</select>' +
+                                 '<label for="id_cantitate_aliment_' + numEntries + '">Cantitate_aliment:</label>' +
+                                 '<input type="number" id="id_cantitate_aliment_' + numEntries + '" name="cantitate_aliment_' + numEntries + '" min="1" step="1" required>';
+            alimentsForm.appendChild(newEntry);
+        });
+        // Get the context of the canvas element we want to select
+        var ctx = document.getElementById("myPieChart").getContext("2d");
+        
+        // Define the data for the pie chart
+        var total_calorii = "{{ total_calorii }}";
+        var calorii_ramase = "{{ calorii_ramase }}";
+        var data = {
+            labels: ["Consumate", "Ramase"],
+            datasets: [{
+                data: [parseInt(total_calorii), parseInt(calorii_ramase)],
+                backgroundColor: ["#FF6384", "#36A2EB"]
+            }]
+        };
 
-    // Get the context of the canvas element we want to select
-    var ctx = document.getElementById("myPieChart").getContext("2d");
-    
-    // Define the data for the pie chart
-    var total_calorii = "{{ total_calorii }}";
-    var calorii_ramase = "{{ calorii_ramase }}";
-    var data = {
-        labels: ["Consumate", "Ramase"],
-        datasets: [{
-            data: [parseInt(total_calorii), parseInt(calorii_ramase)],
-            backgroundColor: ["#FF6384", "#36A2EB"]
-        }]
+        // Create a new pie chart with the provided data
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: {}
+        });
     };
-
-    // Create a new pie chart with the provided data
-    var myPieChart = new Chart(ctx, {
-        type: 'pie',
-        data: data,
-        options: {}
-    });
 </script>
