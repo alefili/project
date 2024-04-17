@@ -5,16 +5,12 @@ from django.utils import timezone
 
 # Create your models here.
 class Aliment(models.Model):
-    UNIT_CHOICES = (
-        ('l', 'Litru'),
-        ('ml', 'Mililitru'),
-        ('g', 'Gram'),
-        ('kg', 'Kilogram'),
-        ('buc', 'Bucata'),
-    )
     titlu = models.CharField(max_length=50, unique=True)
-    unitate = models.CharField(max_length=10, choices=UNIT_CHOICES, default = 'buc', db_index=True)
-    calorii_unitate = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    calorii = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    proteine = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    lipide = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    glucide = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
+    apa = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_index=True)
     
     def __str__(self):
         return f"Aliment {self.titlu} "
@@ -52,7 +48,7 @@ class Plan(models.Model):
         super().save(*args, **kwargs)
     
     def calculate_total_calories(self):
-        total_calorii_alimente = self.aliment.aggregate(total_calories=Sum(models.F('plan__cantitate_aliment') * models.F('plan__aliment__calorii_unitate')))['total_calories'] or 0
+        total_calorii_alimente = self.aliment.aggregate(total_calories=Sum(models.F('plan__cantitate_aliment') * models.F('plan__aliment__calorii')))['total_calories'] or 0
         return total_calorii_alimente
     
     def calorii_ramase(self):

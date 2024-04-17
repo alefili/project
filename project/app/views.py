@@ -30,7 +30,7 @@ def welcome(request):
                 aliment = Aliment.objects.get(id=aliment_id)
                 cantitate_aliment = value
                 
-                calorii = aliment.calorii_unitate * int(cantitate_aliment)
+                calorii = aliment.calorii * int(cantitate_aliment)/100
                 total_calorii += calorii
                 calorii_ramase = int(target_calorii) - total_calorii
                 
@@ -46,7 +46,7 @@ def welcome(request):
             'aliments': Aliment.objects.all(),
             'total_calorii': total_calorii,
             'calorii_ramase': calorii_ramase,
-}
+        }
 
         return render(request, 'index.html', context)
     else:

@@ -7,9 +7,10 @@ Aliment {{aliment.titlu}} - {{ block.super }}
 
 {% block body %}
         <h2>{{ aliment }} </h2> <br>
-        Calorii/unitate: {{ aliment.calorii_unitate }} <br />
-        Unitate de masura: {{ aliment.unitate }}
-        
-
+        Kilocalorii/100g: {{ aliment.calorii }} <br />
+        Proteine: {{ aliment.proteine }} <br>
+        Lipide: {{ aliment.lipide }} <br />
+        Glucide: {{ aliment.glucide }} <br>
+        Apa %: {{ aliment.apa }} <br />
 
 {% endblock body %}

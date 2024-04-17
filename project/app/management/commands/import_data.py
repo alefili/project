@@ -20,8 +20,11 @@ class Command(BaseCommand):
             for row in reader:
                 aliment = Aliment.objects.create(
                     titlu=row['titlu'],
-                    unitate=row['unitate'],
-                    calorii_unitate=row['calorii_unitate']
+                    calorii=row['calorii'],
+                    proteine=row['proteine'],
+                    lipide=row['lipide'],
+                    glucide=row['glucide'],
+                    apa=row['apa']
                 )
                 aliment.save()
 
