@@ -20,20 +20,20 @@ def welcome(request):
     if request.method == 'POST':
         target_calorii = request.POST.get('target_calorii')
         submitted_data = []
-        
-        total_calorii = 0
+        aliments = Aliment.objects.all()
 
-        # Iterate through submitted aliment quantities
-        for key, value in request.POST.items():
-            if key.startswith('aliment_') and value:
-                aliment_id = key.split('_')[1]
+        # Extracting values for aliment and cantitate_aliment
+        num_entries = len([key for key in request.POST if key.startswith('aliment_')])
+        aliment_values = [request.POST.get(f'aliment_{i}') for i in range(1, num_entries + 1)]
+        cantitate_values = [request.POST.get(f'cantitate_aliment_{i}') for i in range(1, num_entries + 1)]
+        total_calorii = 0
+        # Creating a list of dictionaries containing aliment and cantitate_aliment values
+        for aliment_id, cantitate_aliment in zip(aliment_values, cantitate_values):
+            if aliment_id and cantitate_aliment:
                 aliment = Aliment.objects.get(id=aliment_id)
-                cantitate_aliment = value
-                
-                calorii = aliment.calorii * int(cantitate_aliment)/100
+                calorii = aliment.calorii * int(cantitate_aliment) / 100
                 total_calorii += calorii
                 calorii_ramase = int(target_calorii) - total_calorii
-                
                 submitted_data.append({
                     'aliment': aliment, 
                     'cantitate_aliment': cantitate_aliment,
@@ -43,14 +43,14 @@ def welcome(request):
         context = {
             'target_calorii': target_calorii,
             'submitted_data': submitted_data,
-            'aliments': Aliment.objects.all(),
+            'aliments': aliments,
+            'num_entries': num_entries,
             'total_calorii': total_calorii,
             'calorii_ramase': calorii_ramase,
         }
 
         return render(request, 'index.html', context)
     else:
-        # Handle GET request
         aliments = Aliment.objects.all()
         context = {'aliments': aliments}
         return render(request, 'index.html', context)

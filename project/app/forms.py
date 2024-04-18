@@ -60,7 +60,7 @@ class PlanForm(forms.ModelForm):
         instance = super().save(commit=False)
         if commit:
             instance.save()
-            daily_consumption = Plan.objects.create(user=instance.plan.user.user, food_item=instance.aliment, quantity=instance.cantitate_aliment) + Plan.objects.create(user=instance.plan.user.user, food_item=instance.aliment, quantity=instance.cantitate_aliment)
+            daily_consumption = Plan.objects.create(user=instance.plan.user.user, food_item=instance.aliment, quantity=instance.cantitate_aliment)
             daily_consumption.save()
         return instance
         
